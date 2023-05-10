@@ -91,9 +91,9 @@
             
             <tag> 安全 </tag>
             
-            <tag> 二进制安全 </tag>
-            
             <tag> C++ </tag>
+            
+            <tag> 二进制安全 </tag>
             
             <tag> Service </tag>
             
@@ -144,9 +144,9 @@
       
       <categories>
           
-          <category> 算法 </category>
-          
           <category> 安全 </category>
+          
+          <category> 算法 </category>
           
           <category> 漏洞 </category>
           
@@ -155,11 +155,11 @@
       
         <tags>
             
+            <tag> 漏洞 </tag>
+            
             <tag> 网络 </tag>
             
             <tag> 安全 </tag>
-            
-            <tag> 漏洞 </tag>
             
         </tags>
       
@@ -188,13 +188,13 @@
       
         <tags>
             
-            <tag> 安全 </tag>
-            
             <tag> 漏洞 </tag>
             
-            <tag> 底层 </tag>
+            <tag> 安全 </tag>
             
             <tag> iOS </tag>
+            
+            <tag> 底层 </tag>
             
         </tags>
       
@@ -214,18 +214,18 @@
           
           <category> 算法 </category>
           
-          <category> 数据结构 </category>
-          
           <category> 底层 </category>
+          
+          <category> 数据结构 </category>
           
       </categories>
       
       
         <tags>
             
-            <tag> 数据结构 </tag>
-            
             <tag> 算法 </tag>
+            
+            <tag> 数据结构 </tag>
             
             <tag> 底层 </tag>
             
@@ -285,9 +285,9 @@
       
         <tags>
             
-            <tag> 安全 </tag>
-            
             <tag> 漏洞 </tag>
+            
+            <tag> 安全 </tag>
             
             <tag> golang </tag>
             
@@ -345,13 +345,13 @@
       
         <tags>
             
-            <tag> 安全 </tag>
-            
             <tag> 漏洞 </tag>
             
-            <tag> iOS </tag>
+            <tag> 安全 </tag>
             
             <tag> 移动应用 </tag>
+            
+            <tag> iOS </tag>
             
         </tags>
       
@@ -378,9 +378,9 @@
       
         <tags>
             
-            <tag> 安全 </tag>
-            
             <tag> JavaScript </tag>
+            
+            <tag> 安全 </tag>
             
             <tag> 二进制安全 </tag>
             
